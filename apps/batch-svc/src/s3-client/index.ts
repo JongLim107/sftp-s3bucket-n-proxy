@@ -7,10 +7,9 @@ import {
 } from "@aws-sdk/client-s3";
 import { fromContainerMetadata } from "@aws-sdk/credential-providers";
 import { Upload } from "@aws-sdk/lib-storage";
+import { logger } from "@sftp-s3bucket-n-proxy/shared";
 import { Readable } from "node:stream";
 import { convertToS3Prefix } from "../utils/path";
-import { Upload } from "@aws-sdk/lib-storage";
-import { logger } from "@sftp-s3bucket-n-proxy/shared";
 
 class CustomS3Client extends S3 {
   async deleteFile(bucket: string, fileName: string): Promise<void> {

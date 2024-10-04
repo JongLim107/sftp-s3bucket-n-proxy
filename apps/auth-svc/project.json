@@ -5,6 +5,39 @@
   "projectType": "application",
   "tags": [],
   "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/apps/auth-svc",
+        "format": ["cjs"],
+        "bundle": false,
+        "main": "apps/auth-svc/src/main.ts",
+        "tsConfig": "apps/auth-svc/tsconfig.app.json",
+        "assets": ["apps/auth-svc/src/assets"],
+        "generatePackageJson": true,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "generateLockfile": true,
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
@@ -22,9 +55,10 @@
         }
       }
     },
-    "auth-svc": {
+    "docker-build": {
       "dependsOn": ["build"],
       "command": "docker build -f apps/auth-svc/Dockerfile . -t auth-svc"
     }
-  }
+  },
+  "implicitDependencies": ["shared"]
 }

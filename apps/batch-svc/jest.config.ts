@@ -10,7 +10,7 @@ export default {
   },
   moduleFileExtensions: ["ts", "js", "html"],
   moduleNameMapper: {
-    "^@sgworkpass-nodejs-intranet/shared$": "<rootDir>/../../libs/shared/src/index.ts",
+    "^@sftp-s3bucket-n-proxy/shared$": "<rootDir>/../../libs/shared/src/index.ts",
   },
   coverageDirectory: "../../coverage/apps/batch-svc",
   coveragePathIgnorePatterns: ["<rootDir>/src/main.ts", "<rootDir>/src/app", "<rootDir>/src/router/start-sync.ts"],

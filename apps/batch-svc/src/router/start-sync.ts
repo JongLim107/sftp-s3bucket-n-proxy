@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { check } from "express-validator";
-import { BadRequestHandler } from "@sgworkpass-nodejs-intranet/shared";
+import { BadRequestHandler } from "@sftp-s3bucket-n-proxy/shared";
 import { handler } from "../service/sync-file-handler";
 
 const validateRequest = [
