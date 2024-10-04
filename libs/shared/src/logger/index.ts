@@ -1,8 +1,13 @@
 import moment from "moment";
 import winston, { format } from "winston";
+import httpContext from "express-http-context";
+import { getHttpContext } from "../request";
 
 const logFormat = format.printf((infoObj) => {
-  return `[${moment().format("YYYY-MM-DD HH:mm:ss.SSS")}] [sgwp] [${infoObj.level}] ${infoObj.message}`;
+  const requestId = httpContext.get("rid") || getHttpContext().get("rid");
+  const requestIdStr = requestId ? ` [requestID: ${requestId}]` : "";
+
+  return `[${moment().format("YYYY-MM-DD HH:mm:ss.SSS")}] [sgwp] [${infoObj.level}]${requestIdStr} ${infoObj.message}`;
 });
 
 const defaultOptions = {

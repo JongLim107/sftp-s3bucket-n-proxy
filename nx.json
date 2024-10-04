@@ -14,10 +14,9 @@
     ],
     "sharedGlobals": ["{workspaceRoot}/.gitlab-ci.yml"]
   },
-  "nxCloudAccessToken": "Njg4MDFiZTktMzZkNi00NDU1LWI3NGQtNmQ1ZjM3Zjk5NDY2fHJlYWQtd3JpdGU=",
   "targetDefaults": {
     "@nx/esbuild:esbuild": {
-      "cache": true,
+      "cache": false,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
     }
