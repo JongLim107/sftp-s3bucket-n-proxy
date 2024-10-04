@@ -2,7 +2,7 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 npx lint-staged --relative
-npx eslint --max-warnings 1 ./apps/batch-svc
+npx eslint --max-warnings 1 ./apps/auth-svc ./apps/batch-svc ./libs/shared
 
 # Enforce to format the codes before commit
 # npx prettier --write .

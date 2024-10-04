@@ -16,23 +16,35 @@ export class SftpClient {
   private _cfg: ConnectOptions;
   private _sftp: sftp;
 
-  constructor(cfg: ConnectOptions = {}) {
-    this._sftp = new sftp();
-    this._cfg = { ...defaultConfig, ...cfg };
+  static async initial(username: string): Promise<SftpClient | null> {
+    const instance = new SftpClient({ ...defaultConfig, username });
+    const connected = await instance
+      .connect()
+      .then(() => true)
+      .catch(() => false); // cathc error otherwise it will crashing the app
+    return connected ? instance : null;
   }
 
-  async connect(username: string) {
-    logger.info(`>>>> Connecting to SFTP server ${username}`);
-    await this._sftp.connect({ ...this._cfg, username }).catch((err) => {
+  constructor(cfg: ConnectOptions) {
+    this._sftp = new sftp();
+    this._cfg = { ...cfg };
+  }
+
+  async connect() {
+    logger.info(`>>>> Connecting to SFTP server ${this._cfg.username}`);
+    await this._sftp.connect(this._cfg).catch((err) => {
       logger.error("<<<< Connection failed", err);
       throw err;
     });
-    return this;
   }
 
-  async listFiles(path: string) {
-    const result = await this._sftp.list(path);
-    return result.map(({ type, name }) => (type === "d" ? "/" : "") + name);
+  async listFiles(path: string): Promise<string[] | undefined> {
+    const result = await this._sftp.list(path).catch((err) => {
+      logger.warn("sftp", err);
+      return null;
+    });
+    // skip dirs in returned list
+    return result?.filter(({ type }) => type !== "d").map(({ name }) => name);
   }
 
   async mkdirs(remotePath: string) {

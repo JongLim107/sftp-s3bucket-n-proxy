@@ -70,7 +70,7 @@ export const create = (offset?: number, scrambleId?: number, timestamp?: number)
   return `${lpadding}${_scrambleId}${scrambledTimestamp}${rpadding}`;
 };
 
-export const valid = (ns: string, timestampRange = 60000): boolean => {
+export const verify = (ns: string, timestampRange = 60000): boolean => {
   if (ns == null || ns.length < NONCE_LENGTH) {
     logger.error(`invalid parse nonce: ${ns}`);
     return false;

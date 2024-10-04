@@ -4,7 +4,7 @@ import { AuthorizationError, TechnicalError } from "./errors";
 import { initRedisClient, redisGet, redisSet, redisDelete, closeRedisClient } from "./redis";
 import { getSessionCfg } from "./redis/session";
 import { BadRequestHandler, UnauthorizedHandler, StatusCode, HttpClient, requestContextMiddleware } from "./request";
-import { Nonce } from "./utilities/nonce";
+import { create as createNonce, verify as verifyNonce } from "./utilities/nonce";
 
 export {
   logger,
@@ -22,5 +22,6 @@ export {
   redisDelete,
   closeRedisClient, // should only call this in tests
   getSessionCfg,
-  Nonce,
+  createNonce,
+  verifyNonce,
 };

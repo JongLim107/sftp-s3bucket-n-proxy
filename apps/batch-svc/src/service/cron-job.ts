@@ -4,6 +4,7 @@ import { logger } from "@sftp-s3bucket-n-proxy/shared";
 
 export const setupCronJob = () => {
   [
+    [process.env.CRON_SCHEDULE_SGWP, process.env.SSH_USER_SGWP],
     [process.env.CRON_SCHEDULE_CPC, process.env.SSH_USER_CPC],
     [process.env.CRON_SCHEDULE_IWPS, process.env.SSH_USER_IWPS],
     [process.env.CRON_SCHEDULE_RDIEP, process.env.SSH_USER_RDIEP],

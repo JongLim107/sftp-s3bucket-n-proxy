@@ -3,6 +3,16 @@ import { Readable } from "node:stream";
 import { S3Client } from "../s3-client";
 import { logger } from "@sftp-s3bucket-n-proxy/shared";
 
+const AWS_ACCESS_KEY_ID = "aws-s3-sccess-key-id";
+const AWS_SECRET_ACCESS_KEY = "aws-s3-secret-access-key";
+
+jest.mock("@aws-sdk/credential-providers", () => ({
+  fromContainerMetadata: jest.fn(() => ({
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  })),
+}));
+
 jest.setTimeout(10000);
 
 describe("CustomS3Client", () => {
@@ -17,6 +27,7 @@ describe("CustomS3Client", () => {
   beforeEach(() => {
     mockSend.mockClear();
     jest.spyOn(logger, "warn").mockReturnValue();
+    jest.spyOn(logger, "error").mockReturnValue();
   });
 
   it("should delete files in the specified path", async () => {
@@ -47,25 +58,25 @@ describe("CustomS3Client", () => {
       expect(files).toEqual(["file1", "file2"]);
     });
 
-    it.each([{}, { Contents: [] }])("should return empty array if the bucket is empty", async (response) => {
+    it.each([{}, { Contents: [] }])("should return null if the bucket is empty", async (response) => {
       mockSend.mockResolvedValueOnce(response);
 
       const files = await s3Client.listAllFiles("sample-bucket");
 
       expect(mockSend).toHaveBeenCalledTimes(1);
-      expect(logger.warn).toHaveBeenCalledWith("No files found for Prefix: ");
-      expect(files).toEqual([]);
+      expect(logger.warn).toHaveBeenCalledWith("s3_bucket: No files found for Prefix: ");
+      expect(files).toEqual(response.Contents?.length ? [] : null);
     });
 
-    it("should thrpw an error if there are too many files", async () => {
+    it("should return null if there are too many files (more than 1000 files)", async () => {
       mockSend.mockResolvedValueOnce({
         Contents: new Array(1000).fill({ Key: "file" }),
       });
+      const files = await s3Client.listAllFiles("sample-bucket");
 
-      await expect(() => s3Client.listAllFiles("sample-bucket", "/dir")).rejects.toThrow(
-        "Too many files found in Prefix: dir",
-      );
       expect(mockSend).toHaveBeenCalledTimes(1);
+      expect(logger.error).toHaveBeenCalledWith("s3_bucket: Too many files found in Prefix: ");
+      expect(files).toEqual(null);
     });
   });
 
@@ -153,17 +164,12 @@ describe("CustomS3Client", () => {
 
 describe("S3Client", () => {
   it("should create a new instance of CustomS3Client", async () => {
-    const accessKeyId = "test-access-key";
-    const secretAccessKey = "test-secret-key";
-    process.env.AWS_ACCESS_KEY_ID = accessKeyId;
-    process.env.AWS_SECRET_ACCESS_KEY = secretAccessKey;
-
     const s3Client = S3Client();
 
     expect(s3Client).toBeInstanceOf(S3);
     const cfg = await s3Client.config.credentials();
-    expect(cfg.accessKeyId).toBe(accessKeyId);
-    expect(cfg.secretAccessKey).toBe(secretAccessKey);
+    expect(cfg.accessKeyId).toBe(AWS_ACCESS_KEY_ID);
+    expect(cfg.secretAccessKey).toBe(AWS_SECRET_ACCESS_KEY);
   });
 });
 

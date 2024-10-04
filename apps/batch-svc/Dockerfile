@@ -7,8 +7,8 @@
 FROM docker.io/node:lts-alpine
 
 ENV HOST=0.0.0.0
-ENV PORT=3011
-EXPOSE 3011
+ENV PORT=8081
+EXPOSE 8081
 
 WORKDIR /app
 

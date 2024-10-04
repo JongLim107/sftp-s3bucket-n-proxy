@@ -5,6 +5,8 @@ import {
   ListObjectsV2Command,
   S3Client as S3,
 } from "@aws-sdk/client-s3";
+import { fromContainerMetadata } from "@aws-sdk/credential-providers";
+import { Upload } from "@aws-sdk/lib-storage";
 import { Readable } from "node:stream";
 import { convertToS3Prefix } from "../utils/path";
 import { Upload } from "@aws-sdk/lib-storage";
@@ -26,7 +28,7 @@ class CustomS3Client extends S3 {
    * @param prefix prefix of the file
    * @returns
    */
-  async listAllFiles(bucket: string, dirPath?: string, prefix = ""): Promise<string[]> {
+  async listAllFiles(bucket: string, dirPath?: string, prefix = ""): Promise<string[] | null> {
     const Prefix = dirPath ? convertToS3Prefix(`${dirPath}/${prefix}`) : prefix;
     const command = new ListObjectsV2Command({
       Bucket: bucket,
@@ -34,11 +36,12 @@ class CustomS3Client extends S3 {
     });
     const { Contents } = await this.send(command);
     if (!Contents?.length) {
-      logger.warn(`No files found for Prefix: ${Prefix}`);
-      return [];
+      logger.warn(`s3_bucket: No files found for Prefix: ${Prefix}`);
+      return null;
     }
     if (Contents.length === 1000) {
-      throw new Error(`Too many files found in Prefix: ${Prefix}`);
+      logger.error(`s3_bucket: Too many files found in Prefix: ${Prefix}`);
+      return null;
     }
     return Contents.map((content) => content.Key).filter((name) => !name.endsWith("/"));
   }
@@ -92,8 +95,12 @@ export const S3Client = () =>
     // region: "ap-east-1", // For locally testing with localstack
     // endpoint: "http://localhost:4566",
     // forcePathStyle: true,
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    },
+    credentials: fromContainerMetadata({
+      // Optional. The connection timeout (in milliseconds) to apply to any remote requests.
+      // If not specified, a default value of `1000` (one second) is used.
+      timeout: 5000,
+      // Optional. The maximum number of times any HTTP connections should be retried. If not
+      // specified, a default value of `0` will be used.
+      maxRetries: 2,
+    }),
   });

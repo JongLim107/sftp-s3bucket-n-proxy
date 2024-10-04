@@ -22,10 +22,10 @@ describe("SftpClient", () => {
   let sftpClient: SftpClient;
 
   beforeAll(async () => {
-    sftpClient = new SftpClient();
-    await sftpClient.connect("sftpuser");
+    sftpClient = await SftpClient.initial("sftpuser");
     jest.spyOn(logger, "error").mockReturnValue();
     jest.spyOn(logger, "info").mockReturnValue();
+    jest.spyOn(logger, "warn").mockReturnValue();
   });
 
   afterAll(async () => {
@@ -33,28 +33,46 @@ describe("SftpClient", () => {
     jest.restoreAllMocks();
   });
 
-  it("should return the SftpClient instance from connect", async () => {
-    const customClient = new SftpClient();
+  it("should return a SftpClient instance from connect", async () => {
+    const instance = await SftpClient.initial("sftpuser");
 
-    const instance = await customClient.connect("sftpuser");
-    expect(instance).toBe(customClient);
+    expect(instance).toBeInstanceOf(SftpClient);
     expect(logger.info).toHaveBeenCalledWith(">>>> Connecting to SFTP server sftpuser");
   });
 
-  it("should throw an error if connection fails", async () => {
+  it("should return null if fails to initial/connect to sftp", async () => {
     _innerSftp.connect.mockImplementation(() => Promise.reject(Error("Connection failed")));
-    const customClient = new SftpClient();
+    const customClient = await SftpClient.initial("sftpuser");
 
-    await expect(customClient.connect("sftpuser")).rejects.toThrow("Connection failed");
-
+    expect(customClient).toBeNull();
     expect(logger.error).toHaveBeenCalledWith("<<<< Connection failed", expect.any(Error));
   });
 
-  it("should list files in the specified path", async () => {
-    const result = await sftpClient.listFiles("/upload");
-    expect(result).toBeDefined();
-    expect(result).toHaveLength(1);
-    expect(result[0]).toBe("file1.txt");
+  describe("listFiles", () => {
+    it("should list files in the specified path", async () => {
+      const result = await sftpClient.listFiles("/upload");
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBe("file1.txt");
+    });
+
+    it("should list all files (include folder) in the specified path", async () => {
+      _innerSftp.list.mockResolvedValueOnce([
+        { type: "d", name: "path" },
+        { type: "f", name: "file2.txt" },
+      ]);
+      const result = await sftpClient.listFiles("/any-path");
+
+      expect(result).toHaveLength(1);
+      expect(result).toEqual(["file2.txt"]);
+    });
+
+    it("should list files in the specified path", async () => {
+      _innerSftp.list.mockRejectedValueOnce("list: No such file /upload");
+      const result = await sftpClient.listFiles("/upload");
+
+      expect(result).toBeUndefined();
+      expect(logger.warn).toHaveBeenCalledWith("sftp", "list: No such file /upload");
+    });
   });
 
   it("should create a directory", async () => {

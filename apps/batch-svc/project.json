@@ -59,5 +59,6 @@
       "dependsOn": ["build"],
       "command": "docker build -f apps/batch-svc/Dockerfile . -t batch-svc"
     }
-  }
+  },
+  "implicitDependencies": ["shared"]
 }

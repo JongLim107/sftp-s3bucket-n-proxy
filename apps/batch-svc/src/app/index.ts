@@ -3,6 +3,7 @@ import tickRoute from "../router/start-sync";
 import { setupCronJob } from "../service/cron-job";
 
 const app = express();
+app.use(express.json()); // Parse incoming request with JSON payloads
 
 const urlPrefix = process.env.SVC_URL_PREFIX || "sgwp";
 
@@ -13,7 +14,7 @@ app.use(`${appRoute}/healthz`, (req, res) => {
 });
 
 if (process.env.ENABLE_MANUAL_TICK === "true") {
-  app.use(`${appRoute}/`, tickRoute);
+  app.use(`${appRoute}/start-sync`, tickRoute);
 }
 
 setupCronJob();
