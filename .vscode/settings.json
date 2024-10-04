@@ -1,0 +1,23 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.detectIndentation": false,
+  "editor.formatOnSave": true,
+  "editor.insertSpaces": true,
+  "editor.rulers": [120],
+  "editor.tabSize": 2,
+  "files.associations": {
+    "*.tsconfig.json": "jsonc",
+    "*.tslint.json": "jsonc"
+  },
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "prettier.configPath": ".prettierrc",
+  "search.useIgnoreFiles": true,
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "[dockerfile]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+  }
+}

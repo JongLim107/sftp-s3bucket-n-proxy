@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npx lint-staged --relative
+npx eslint --max-warnings 1 ./apps/batch-svc
+
+# Enforce to format the codes before commit
+# npx prettier --write .
+EXSTENSIONS="\.js$|\.ts$"
+RED="\033[0;31m"; GREEN="\033[0;32m"; NC="\033[0m"
+if git diff --cached --name-only | grep -E $EXSTENSIONS; then
+  # if combine the code below into the 1st. if statement, it will not work
+  all_jsts_files=$(git diff --cached --name-only --diff-filter=d | grep -E $EXSTENSIONS)
+
+  unformatted_files=$(echo $(npx prettier -l $all_jsts_files))
+  echo "Prettier checking unformatted files ~"
+
+  if echo "$unformatted_files" | grep -E $EXSTENSIONS; then
+    echo "Error: you have unformatted files listed above!"
+    echo "${RED} * Prettier is going to format changed files for you${NC}"
+    npx prettier --write $all_jsts_files > /dev/null 2>&1
+    # git add -f $all_jsts_files
+    exit 1
+  fi
+fi

@@ -1,0 +1,16 @@
+# Add files here to ignore them from prettier formatting
+/dist
+/coverage
+/.nx/cache
+/.nx/workspace-data
+
+# settings
+.husky
+
+# project
+dist
+coverage
+lib
+logs
+
+node_modules

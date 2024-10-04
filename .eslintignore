@@ -1,0 +1,14 @@
+# settings
+.husky
+
+# project
+dist
+coverage
+lib
+logs
+
+node_modules
+
+# tests
+*.test.ts
+*.test.tsx

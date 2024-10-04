@@ -1,0 +1,30 @@
+{
+  "name": "auth-svc",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/auth-svc/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "auth-svc:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "auth-svc:build:development"
+        },
+        "production": {
+          "buildTarget": "auth-svc:build:production"
+        }
+      }
+    },
+    "auth-svc": {
+      "dependsOn": ["build"],
+      "command": "docker build -f apps/auth-svc/Dockerfile . -t auth-svc"
+    }
+  }
+}
