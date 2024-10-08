@@ -1,8 +1,8 @@
 export default {
   displayName: "auth-svc",
-  preset: "../../jest.preset.js",
-  // setupFiles: ["../../.jest/set-env-vars.js"],
-  // setupFilesAfterEnv: ["dotenv/config", "../../.jest/jest.setup.js"],
+  // preset: "../../jest.preset.js",
+  setupFiles: ["../../.jest/set-env-vars.js"],
+  setupFilesAfterEnv: ["dotenv/config", "../../.jest/jest.setup.js", "../../.jest/setup-redis-mock.js"],
   testEnvironment: "node",
   transform: {
     "^.+\\.[tj]s$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.spec.json" }],

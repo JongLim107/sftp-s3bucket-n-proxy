@@ -11,60 +11,12 @@ permissions:
   contents: read
 
 jobs:
-  lint:
-    # runs-on: macOS-latest
-    container:
-      image: node:18
-      env:
-        NODE_ENV: development
-    steps:
-      - name: Fetching stats 🔎
-        run: |
-          echo "🎉 The job was automatically triggered by a ${{ gitea.event_name }} event."
-          echo "🐧 This job is now running on a ${{ runner.os }} server"
-          echo "🔎 The name of your branch is ${{ gitea.ref }} and your repository is ${{ gitea.repository }}."
-      - name: Check out repository code
-        uses: https://gitea.com/ScMi1/checkout@v1
-        env:
-          GITHUB_SERVER_URL: https://repo.activate.sg/git/
-      - name: Clean install dependencies and lint
-        run: |
-          npm ci
-          npx eslint --max-warnings 1 ./apps/auth-svc ./apps/batch-svc ./libs/shared
-      - name: Job status
-        run: |
-          echo "🍏 This job's status is ${{ job.status }}."
-  verify-build:
-    # runs-on: macOS-latest
-    container:
-      image: node:18
-      env:
-        NODE_ENV: development
-    steps:
-      - name: Fetching stats 🔎
-        run: |
-          echo "🎉 The job was automatically triggered by a ${{ gitea.event_name }} event."
-          echo "🐧 This job is now running on a ${{ runner.os }} server"
-          echo "🔎 The name of your branch is ${{ gitea.ref }} and your repository is ${{ gitea.repository }}."
-      - name: Check out repository code
-        uses: https://gitea.com/ScMi1/checkout@v1
-        env:
-          GITHUB_SERVER_URL: https://repo.activate.sg/git/
-      - name: Clean install dependencies and verify build
-        run: |
-          npm ci
-          npm run build
-      - name: Job status
-        run: |
-          echo "🍏 This job's status is ${{ job.status }}."
-  unit-test:
-    # runs-on: macOS-latest
+  lint-build-test:
+    runs-on: ubuntu-latest
     container:
       image: node:18
       env:
         NODE_ENV: test
-        DB_HOST: host.docker.internal
-        TESTCONTAINERS_HOST_OVERRIDE: host.docker.internal
     steps:
       - name: Fetching stats 🔎
         run: |
@@ -74,13 +26,26 @@ jobs:
       - name: Check out repository code
         uses: https://gitea.com/ScMi1/checkout@v1
         env:
-          GITHUB_SERVER_URL: https://repo.activate.sg/git/
-      - name: Clean install dependencies and test
+          GITHUB_SERVER_URL: https://repo.lz-company.sg/git/
+      - name: Clean install dependencies
         run: |
           npm ci
-          export NODE_OPTIONS=--max_old_space_size=8192
+      - name: Run lint
+        run: |
+          npx eslint --max-warnings 1 ./apps/auth-svc ./apps/batch-svc ./libs/shared
+      - name: Run unit test for auth-svc
+        run: |
           export TZ="Asia/Singapore"
-          npm run test
+          export NODE_OPTIONS=--max_old_space_size=8192
+          npx nx run auth-svc:test
+      - name: Run unit test for batch-svc
+        run: |
+          export TZ="Asia/Singapore"
+          export NODE_OPTIONS=--max_old_space_size=8192
+          npx nx run batch-svc:test
+      - name: Verify build cmd
+        run: |
+          npx nx run-many --target=build
       - name: Job status
         run: |
           echo "🍏 This job's status is ${{ job.status }}."

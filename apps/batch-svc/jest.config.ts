@@ -1,9 +1,9 @@
 /* eslint-disable */
 export default {
   displayName: "batch-svc",
-  preset: "../../jest.preset.js",
-  // setupFiles: ["dotenv/config", "../../.jest/jest.setup.js", "../../.jest/set-env-vars.js"],
-  // setupFilesAfterEnv: ["<rootDir>/svc/test-setup.ts"],
+  // preset: "../../jest.preset.js",
+  setupFiles: ["../../.jest/set-env-vars.js"],
+  setupFilesAfterEnv: ["dotenv/config", "../../.jest/jest.setup.js", "../../.jest/setup-redis-mock.js"],
   testEnvironment: "node",
   transform: {
     "^.+\\.[tj]s$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.spec.json" }],

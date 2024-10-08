@@ -53,7 +53,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 
 # upgrade python build tools
 RUN --mount=type=cache,target=/root/.cache \
-    (python3 -m venv .venv && . .venv/bin/activate && pip3 install --upgrade pip wheel setuptools setuptools_scm build)
+  (python3 -m venv .venv && . .venv/bin/lz-company && pip3 install --upgrade pip wheel setuptools setuptools_scm build)
 
 # add files necessary to install all dependencies
 ADD Makefile pyproject.toml requirements-base-runtime.txt ./
@@ -62,7 +62,7 @@ ADD bin/localstack bin/localstack.bat bin/localstack-supervisor bin/
 
 # Install dependencies for running the LocalStack base runtime (for S3)
 RUN --mount=type=cache,target=/root/.cache \
-    . .venv/bin/activate && pip3 install -r requirements-base-runtime.txt
+  . .venv/bin/lz-company && pip3 install -r requirements-base-runtime.txt
 
 # delete the botocore specs for other services (>80mb)
 # TODO: well now it's compressed and it's much lighter: 20mb maybe not worth it
@@ -85,7 +85,7 @@ ADD localstack-core/ /opt/code/localstack/localstack-core
 
 # Install LocalStack Community and generate the version file while doing so
 RUN --mount=type=cache,target=/root/.cache \
-    . .venv/bin/activate && \
+  . .venv/bin/lz-company && \
     SETUPTOOLS_SCM_PRETEND_VERSION_FOR_LOCALSTACK_CORE=${LOCALSTACK_BUILD_VERSION} \
     pip install -e .[base-runtime]
 
